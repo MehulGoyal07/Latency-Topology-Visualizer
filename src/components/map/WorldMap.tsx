@@ -6,6 +6,7 @@ import { OrbitControls, Stars } from '@react-three/drei';
 import { Canvas } from '@react-three/fiber';
 import { useEffect, useMemo, useState } from 'react';
 import { styled } from 'styled-components';
+import { AnalyticsPanel } from '../ui/AnalyticsPanel';
 import { LatencyToggle } from '../ui/LatencyToggle';
 import { Legend } from '../ui/Legend';
 import { ProviderFilter } from '../ui/ProviderFilter';
@@ -159,6 +160,7 @@ const WorldMap = () => {
           onClick={() => setShowLatency(!showLatency)} 
         />
         <Legend />
+        <AnalyticsPanel />
       </CanvasContainer>
     </>
   );
