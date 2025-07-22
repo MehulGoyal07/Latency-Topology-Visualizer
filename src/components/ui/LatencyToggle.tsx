@@ -9,7 +9,17 @@ export const LatencyToggle = ({ active, onClick }: LatencyToggleProps) => {
   return (
     <ToggleContainer>
       <ToggleButton $active={active} onClick={onClick}>
-        {active ? 'Hide Latency' : 'Show Latency'}
+        {active ? (
+          <>
+            <span>Hide</span>
+            <span>Latency</span>
+          </>
+        ) : (
+          <>
+            <span>Show</span>
+            <span>Latency</span>
+          </>
+        )}
       </ToggleButton>
       <StatusIndicator $active={active} />
     </ToggleContainer>
@@ -17,38 +27,62 @@ export const LatencyToggle = ({ active, onClick }: LatencyToggleProps) => {
 };
 
 const ToggleContainer = styled.div`
-  position: absolute;
-  bottom: 80px;
-  right: 20px;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 0.75rem;
 `;
 
 const ToggleButton = styled.button<{ $active: boolean }>`
   background: ${({ $active }) => 
-    $active ? 'rgba(76, 175, 80, 0.2)' : 'rgba(244, 67, 54, 0.2)'};
-  color: white;
+    $active ? 'rgba(74, 222, 128, 0.15)' : 'rgba(248, 113, 113, 0.15)'};
+  color: ${({ $active }) => $active ? '#4ade80' : '#f87171'};
   border: 1px solid ${({ $active }) => 
-    $active ? 'rgba(76, 175, 80, 0.5)' : 'rgba(244, 67, 54, 0.5)'};
-  padding: 8px 16px;
-  border-radius: 6px;
+    $active ? 'rgba(74, 222, 128, 0.3)' : 'rgba(248, 113, 113, 0.3)'};
+  padding: 0.625rem 1rem;
+  border-radius: 0.5rem;
   cursor: pointer;
-  font-size: 0.9rem;
+  font-size: 0.875rem;
+  font-weight: 500;
   transition: all 0.2s ease;
-  backdrop-filter: blur(8px);
+  backdrop-filter: blur(12px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1.2;
+  min-width: 5rem;
 
   &:hover {
     background: ${({ $active }) => 
-      $active ? 'rgba(76, 175, 80, 0.3)' : 'rgba(244, 67, 54, 0.3)'};
+      $active ? 'rgba(74, 222, 128, 0.25)' : 'rgba(248, 113, 113, 0.25)'};
+    transform: translateY(-0.125rem);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+
+  span {
+    display: block;
+  }
+
+  @media (max-width: 768px) {
+    padding: 0.5rem 0.75rem;
+    min-width: 4.5rem;
+    font-size: 0.8125rem;
   }
 `;
 
 const StatusIndicator = styled.div<{ $active: boolean }>`
-  width: 14px;
-  height: 14px;
+  width: 0.875rem;
+  height: 0.875rem;
   border-radius: 50%;
-  background: ${({ $active }) => ($active ? '#4CAF50' : '#F44336')};
-  box-shadow: 0 0 8px ${({ $active }) => 
-    ($active ? 'rgba(76, 175, 80, 0.5)' : 'rgba(244, 67, 54, 0.5)')};
+  background: ${({ $active }) => ($active ? '#4ade80' : '#f87171')};
+  box-shadow: 0 0 0 0.25rem ${({ $active }) => 
+    ($active ? 'rgba(74, 222, 128, 0.2)' : 'rgba(248, 113, 113, 0.2)')};
+  transition: all 0.3s ease;
+
+  @media (max-width: 768px) {
+    width: 0.75rem;
+    height: 0.75rem;
+  }
 `;

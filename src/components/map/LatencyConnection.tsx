@@ -19,24 +19,34 @@ export const LatencyConnection = ({
 
   const lineColor = useMemo(() => {
     if (color) return color;
-    return latency < 50 ? '#4ade80' : 
-           latency < 100 ? '#fbbf24' : '#f87171';
+    return latency < 50 ? '#10b981' : 
+           latency < 100 ? '#f59e0b' : '#ef4444';
   }, [latency, color]);
 
+  const lineWidth = useMemo(() => {
+    return latency < 50 ? 1.8 : 
+           latency < 100 ? 1.5 : 1.2;
+  }, [latency]);
+
   const dashSize = useMemo(() => {
-    return Math.min(1, Math.max(0.2, 1 - (latency / 200)));
+    return Math.min(1.2, Math.max(0.3, 1.2 - (latency / 200)));
+  }, [latency]);
+
+  const opacity = useMemo(() => {
+    return latency < 50 ? 0.9 : 
+           latency < 100 ? 0.8 : 0.7;
   }, [latency]);
 
   return (
     <Line
       points={points}
       color={lineColor}
-      lineWidth={1.5}
+      lineWidth={lineWidth}
       dashed
       dashSize={dashSize}
-      gapSize={0.3}
+      gapSize={0.25}
       transparent
-      opacity={0.8}
+      opacity={opacity}
       depthTest={false}
     />
   );

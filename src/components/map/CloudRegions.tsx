@@ -24,8 +24,9 @@ export const CloudRegions = ({ regions, visibleProviders }: CloudRegionsProps) =
               key={`${region.id}-${idx}`}
               latitude={area.latitude}
               longitude={area.longitude}
-              radius={region.coverageRadius} // Use region-level radius
+              radius={region.coverageRadius}
               color={PROVIDER_COLORS[region.provider]}
+              provider={region.provider}
             />
           ))}
         </group>
@@ -39,25 +40,24 @@ const CoverageArea = ({
   longitude,
   radius,
   color,
+  provider,
 }: {
   latitude: number;
   longitude: number;
   radius: number;
   color: string;
+  provider: 'aws' | 'gcp' | 'azure';
 }) => {
   const earthRadius = 100;
-  const segments = 64;
+  const segments = 96; // Increased for smoother circles
 
-  // Convert lat/long to radians
   const latRad = latitude * (Math.PI / 180);
   const lonRad = longitude * (Math.PI / 180);
 
-  // Calculate coverage circle points
   const points = useMemo(() => {
     const points: THREE.Vector3[] = [];
     for (let i = 0; i <= segments; i++) {
       const angle = (i / segments) * Math.PI * 2;
-      // Convert radius to angle (approximate)
       const angleRadius = (radius / 6371) * (180 / Math.PI);
       const circleLat = latRad + angleRadius * Math.sin(angle);
       const circleLon = lonRad + angleRadius * Math.cos(angle);
@@ -75,9 +75,9 @@ const CoverageArea = ({
     <Line
       points={points}
       color={color}
-      lineWidth={1.5}
+      lineWidth={provider === 'aws' ? 1.8 : provider === 'gcp' ? 1.6 : 1.4}
       transparent
-      opacity={0.7}
+      opacity={0.8}
       dashed={false}
     />
   );
