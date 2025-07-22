@@ -1,2 +1,3 @@
 export * from './cloudRegions';
-export * from './exchanges';
+export * from './exchange';
+

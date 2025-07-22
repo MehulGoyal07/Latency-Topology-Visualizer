@@ -1,45 +1,43 @@
 import { Line } from '@react-three/drei';
+import { useMemo } from 'react';
 import * as THREE from 'three';
 
-export interface LatencyConnectionData {
-  from: { x: number; y: number; z: number };
-  to: { x: number; y: number; z: number };
-  latency: number;
-  color: string;
-}
-
 interface LatencyConnectionProps {
-  from: { x: number; y: number; z: number };
-  to: { x: number; y: number; z: number };
+  from: THREE.Vector3;
+  to: THREE.Vector3;
   latency: number;
-  visible: boolean;
+  color?: string;
 }
 
 export const LatencyConnection = ({
   from,
   to,
   latency,
-  visible,
+  color,
 }: LatencyConnectionProps) => {
-  const points = [
-    new THREE.Vector3(from.x, from.y, from.z),
-    new THREE.Vector3(to.x, to.y, to.z)
-  ];
+  const points = useMemo(() => [from, to], [from, to]);
 
-  // Color based on latency
-  const color = latency < 50 ? '#4CAF50' : 
-               latency < 100 ? '#FFC107' : '#F44336';
+  const lineColor = useMemo(() => {
+    if (color) return color;
+    return latency < 50 ? '#4ade80' : 
+           latency < 100 ? '#fbbf24' : '#f87171';
+  }, [latency, color]);
+
+  const dashSize = useMemo(() => {
+    return Math.min(1, Math.max(0.2, 1 - (latency / 200)));
+  }, [latency]);
 
   return (
     <Line
       points={points}
-      color={color}
-      lineWidth={visible ? 1.2 : 0}
+      color={lineColor}
+      lineWidth={1.5}
       dashed
-      dashSize={0.5}
-      gapSize={0.2}
+      dashSize={dashSize}
+      gapSize={0.3}
       transparent
-      opacity={visible ? 0.8 : 0}
+      opacity={0.8}
+      depthTest={false}
     />
   );
 };

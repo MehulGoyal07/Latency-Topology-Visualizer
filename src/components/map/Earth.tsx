@@ -1,15 +1,22 @@
 import { useFrame, useLoader } from '@react-three/fiber';
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import * as THREE from 'three';
-import { TextureLoader } from 'three/src/loaders/TextureLoader';
+import { TextureLoader } from 'three';
 
 export const Earth = () => {
   const earthRef = useRef<THREE.Mesh>(null);
- const [colorMap, bumpMap, specularMap] = useLoader(TextureLoader, [
-  'https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/textures/planets/earth_atmos_2048.jpg', // Color
-  'https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/textures/planets/earth_normal_2048.jpg', // Bump/Normal
-  'https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/textures/planets/earth_specular_2048.jpg', // Specular
-]);
+  const [colorMap, normalMap, specularMap] = useLoader(TextureLoader, [
+    '/textures/earth_color.jpg',
+    '/textures/earth_normal.jpg',
+    '/textures/earth_specular.jpg'
+  ]);
+
+  // Fallback if textures fail to load
+  useEffect(() => {
+    colorMap.anisotropy = 16;
+    normalMap.anisotropy = 16;
+    specularMap.anisotropy = 16;
+  }, [colorMap, normalMap, specularMap]);
 
   useFrame(() => {
     if (earthRef.current) {
@@ -18,14 +25,14 @@ export const Earth = () => {
   });
 
   return (
-    <mesh ref={earthRef}>
+    <mesh ref={earthRef} receiveShadow castShadow>
       <sphereGeometry args={[100, 64, 64]} />
       <meshPhongMaterial
         map={colorMap}
-        bumpMap={bumpMap}
+        bumpMap={normalMap}
         bumpScale={0.5}
         specularMap={specularMap}
-        specular={new THREE.Color('grey')}
+        specular={new THREE.Color(0x333333)}
         shininess={5}
         transparent={true}
         opacity={0.95}

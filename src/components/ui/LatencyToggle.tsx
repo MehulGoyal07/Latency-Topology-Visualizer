@@ -22,29 +22,33 @@ const ToggleContainer = styled.div`
   right: 20px;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
 `;
 
 const ToggleButton = styled.button<{ $active: boolean }>`
-  background: rgba(0, 0, 0, 0.7);
+  background: ${({ $active }) => 
+    $active ? 'rgba(76, 175, 80, 0.2)' : 'rgba(244, 67, 54, 0.2)'};
   color: white;
-  border: none;
-  padding: 8px 12px;
-  border-radius: 4px;
+  border: 1px solid ${({ $active }) => 
+    $active ? 'rgba(76, 175, 80, 0.5)' : 'rgba(244, 67, 54, 0.5)'};
+  padding: 8px 16px;
+  border-radius: 6px;
   cursor: pointer;
   font-size: 0.9rem;
-  transition: all 0.2s;
-  backdrop-filter: blur(5px);
+  transition: all 0.2s ease;
+  backdrop-filter: blur(8px);
 
   &:hover {
-    background: rgba(50, 50, 50, 0.7);
+    background: ${({ $active }) => 
+      $active ? 'rgba(76, 175, 80, 0.3)' : 'rgba(244, 67, 54, 0.3)'};
   }
 `;
 
 const StatusIndicator = styled.div<{ $active: boolean }>`
-  width: 12px;
-  height: 12px;
+  width: 14px;
+  height: 14px;
   border-radius: 50%;
   background: ${({ $active }) => ($active ? '#4CAF50' : '#F44336')};
-  box-shadow: 0 0 5px ${({ $active }) => ($active ? '#4CAF50' : '#F44336')};
+  box-shadow: 0 0 8px ${({ $active }) => 
+    ($active ? 'rgba(76, 175, 80, 0.5)' : 'rgba(244, 67, 54, 0.5)')};
 `;

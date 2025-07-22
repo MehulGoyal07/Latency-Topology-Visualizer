@@ -1,5 +1,5 @@
 import { CLOUD_REGIONS } from './cloudRegions';
-import { EXCHANGE_SERVERS } from './exchanges';
+import { EXCHANGE_SERVERS } from './exchange';
 
 // Mock historical data generator
 export const generateHistoricalData = () => {
