@@ -24,7 +24,7 @@ export const CloudRegions = ({ regions, visibleProviders }: CloudRegionsProps) =
               key={`${region.id}-${idx}`}
               latitude={area.latitude}
               longitude={area.longitude}
-              radius={area.radius}
+              radius={region.coverageRadius} // Use region-level radius
               color={PROVIDER_COLORS[region.provider]}
             />
           ))}

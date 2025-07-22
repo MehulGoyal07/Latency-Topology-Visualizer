@@ -11,6 +11,7 @@ export interface CloudRegion {
   provider: 'aws' | 'gcp' | 'azure';
   name: string;
   regionCode: string;
+  coverageRadius: number;
   coverage: GeoLocation[];
 }
 
@@ -20,6 +21,7 @@ export const CLOUD_REGIONS: CloudRegion[] = [
     provider: 'aws',
     name: 'AWS US East (N. Virginia)',
     regionCode: 'us-east-1',
+    coverageRadius: 500,
     coverage: [
       {
         latitude: 39.0438,
@@ -42,6 +44,7 @@ export const CLOUD_REGIONS: CloudRegion[] = [
     provider: 'aws',
     name: 'AWS EU (Ireland)',
     regionCode: 'eu-west-1',
+    coverageRadius: 500,
     coverage: [
       {
         latitude: 53.3498,
@@ -57,6 +60,7 @@ export const CLOUD_REGIONS: CloudRegion[] = [
     provider: 'gcp',
     name: 'GCP Iowa (us-central1)',
     regionCode: 'us-central1',
+    coverageRadius: 500,
     coverage: [
       {
         latitude: 41.878,
@@ -72,6 +76,7 @@ export const CLOUD_REGIONS: CloudRegion[] = [
     provider: 'gcp',
     name: 'GCP Taiwan (asia-east1)',
     regionCode: 'asia-east1',
+    coverageRadius: 500,
     coverage: [
       {
         latitude: 23.6978,
@@ -87,6 +92,7 @@ export const CLOUD_REGIONS: CloudRegion[] = [
     provider: 'azure',
     name: 'Azure East US',
     regionCode: 'eastus',
+    coverageRadius: 500,
     coverage: [
       {
         latitude: 37.7749,
@@ -102,6 +108,7 @@ export const CLOUD_REGIONS: CloudRegion[] = [
     provider: 'azure',
     name: 'Azure West Europe',
     regionCode: 'westeurope',
+    coverageRadius: 500,
     coverage: [
       {
         latitude: 52.3667,

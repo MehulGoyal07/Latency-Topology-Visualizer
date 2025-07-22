@@ -117,6 +117,7 @@ export interface ExchangeServer {
   location: GeoLocation;
   cloudProvider: CloudProvider;
   asn?: string; // For Cloudflare API
+  latency?: number; // Add this line (optional)
 }
 
 export const EXCHANGE_SERVERS: ExchangeServer[] = [

@@ -5,12 +5,11 @@ import { TextureLoader } from 'three';
 
 export const Earth = () => {
   const earthRef = useRef<THREE.Mesh>(null);
-  const [colorMap, normalMap, specularMap] = useLoader(TextureLoader, [
-    '/textures/earth_color.jpg',
-    '/textures/earth_normal.jpg',
-    '/textures/earth_specular.jpg'
-  ]);
-
+const [colorMap, normalMap, specularMap] = useLoader(TextureLoader, [
+  'https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/textures/planets/earth_atmos_2048.jpg', // Color
+  'https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/textures/planets/earth_normal_2048.jpg', // Bump/Normal
+  'https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/textures/planets/earth_specular_2048.jpg', // Specular
+]);
   // Fallback if textures fail to load
   useEffect(() => {
     colorMap.anisotropy = 16;

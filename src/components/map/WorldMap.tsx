@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { useLatency } from '@/contexts/LatencyContext';
 import { PROVIDER_COLORS } from '@/lib/constants';
 import { CLOUD_REGIONS, EXCHANGE_SERVERS, type ExchangeServer } from '@/lib/data';
@@ -177,7 +178,7 @@ const WorldMap = () => {
         <Legend />
       </ControlPanel>
       
-      <AnalyticsPanel selectedExchange={selectedExchange} />
+      <AnalyticsPanel />
     </CanvasContainer>
   );
 };
