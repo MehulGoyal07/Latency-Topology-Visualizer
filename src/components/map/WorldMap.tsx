@@ -4,7 +4,7 @@ import { CLOUD_REGIONS, EXCHANGE_SERVERS, type ExchangeServer } from '@/lib/data
 import { OrbitControls, Stars } from '@react-three/drei';
 import { Canvas } from '@react-three/fiber';
 import { useMemo, useState } from 'react';
-import { FiChevronDown, FiChevronUp, FiMenu, FiX } from 'react-icons/fi';
+import { FiChevronDown, FiChevronUp, FiInfo, FiMenu, FiX } from 'react-icons/fi';
 import styled, { keyframes } from 'styled-components';
 import * as THREE from 'three';
 import { AnalyticsPanel } from '../ui/AnalyticsPanel';
@@ -161,41 +161,24 @@ const WorldMap = () => {
         </AppTitleContainer>
         
         <DesktopControls>
+          <NavItem 
+            onClick={() => setShowAnalytics(!showAnalytics)}
+            $active={showAnalytics}
+          >
+            Analytics {showAnalytics ? <FiChevronUp /> : <FiChevronDown />}
+          </NavItem>
+          
+          <NavItem 
+            onClick={() => setShowFilters(!showFilters)}
+            $active={showFilters}
+          >
+            Filters {showFilters ? <FiChevronUp /> : <FiChevronDown />}
+          </NavItem>
+          
           <LatencyToggle
             active={showLatency}
             onClick={() => setShowLatency(!showLatency)}
           />
-          
-          <NavDropdown>
-            <NavItem 
-              onClick={() => setShowAnalytics(!showAnalytics)}
-              active={showAnalytics}
-            >
-              Analytics {showAnalytics ? <FiChevronUp /> : <FiChevronDown />}
-            </NavItem>
-            {showAnalytics && (
-              <DropdownContent>
-                <AnalyticsPanel />
-              </DropdownContent>
-            )}
-          </NavDropdown>
-          
-          <NavDropdown>
-            <NavItem 
-              onClick={() => setShowFilters(!showFilters)}
-              active={showFilters}
-            >
-              Filters {showFilters ? <FiChevronUp /> : <FiChevronDown />}
-            </NavItem>
-            {showFilters && (
-              <DropdownContent>
-                <ProviderFilter
-                  visibleProviders={visibleProviders}
-                  onToggleProvider={handleToggleProvider}
-                />
-              </DropdownContent>
-            )}
-          </NavDropdown>
         </DesktopControls>
         
         <MobileMenuButton onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
@@ -203,36 +186,103 @@ const WorldMap = () => {
         </MobileMenuButton>
       </TopBar>
 
-      <MobileMenu open={mobileMenuOpen}>
-        <MobileMenuItem onClick={() => {
-          setShowAnalytics(!showAnalytics);
-          setMobileMenuOpen(false);
-        }}>
+      <MobileMenu $open={mobileMenuOpen}>
+        <MobileMenuItem 
+          onClick={() => {
+            setShowAnalytics(!showAnalytics);
+            setMobileMenuOpen(false);
+          }}
+          $active={showAnalytics}
+        >
           Analytics {showAnalytics ? <FiChevronUp /> : <FiChevronDown />}
         </MobileMenuItem>
-        <MobileMenuItem onClick={() => {
-          setShowFilters(!showFilters);
-          setMobileMenuOpen(false);
-        }}>
+        <MobileMenuItem 
+          onClick={() => {
+            setShowFilters(!showFilters);
+            setMobileMenuOpen(false);
+          }}
+          $active={showFilters}
+        >
           Filters {showFilters ? <FiChevronUp /> : <FiChevronDown />}
         </MobileMenuItem>
-        <MobileMenuItem onClick={() => {
-          setShowLatency(!showLatency);
-          setMobileMenuOpen(false);
-        }}>
+        <MobileMenuItem 
+          onClick={() => {
+            setShowLatency(!showLatency);
+            setMobileMenuOpen(false);
+          }}
+          $active={showLatency}
+        >
           Latency: {showLatency ? 'ON' : 'OFF'}
         </MobileMenuItem>
       </MobileMenu>
 
+      {/* Centered Analytics Panel */}
+      {showAnalytics && (
+        <CenteredPanel $type="analytics">
+          <PanelHeader>
+            <h3>Latency Analytics</h3>
+            <CloseButton onClick={() => setShowAnalytics(false)}>
+              <FiX size={20} />
+            </CloseButton>
+          </PanelHeader>
+          <PanelContent>
+            <AnalyticsPanel />
+          </PanelContent>
+        </CenteredPanel>
+      )}
+
+      {/* Centered Filters Panel */}
+      {showFilters && (
+        <CenteredPanel $type="filters">
+          <PanelHeader>
+            <h3>Cloud Providers</h3>
+            <CloseButton onClick={() => setShowFilters(false)}>
+              <FiX size={20} />
+            </CloseButton>
+          </PanelHeader>
+          <PanelContent>
+            <ProviderFilter
+              visibleProviders={visibleProviders}
+              onToggleProvider={handleToggleProvider}
+            />
+          </PanelContent>
+        </CenteredPanel>
+      )}
+
+      {/* Server Details Panel */}
+      {hoveredExchange && (
+        <ServerDetailsPanel>
+          <DetailsHeader>
+            <FiInfo size={18} />
+            <h4>Server Details</h4>
+            <CloseButton onClick={() => setHoveredExchange(null)}>
+              <FiX size={18} />
+            </CloseButton>
+          </DetailsHeader>
+          <DetailsContent>
+            <DetailRow>
+              <span>Name:</span>
+              <strong>{hoveredExchange.name}</strong>
+            </DetailRow>
+            <DetailRow>
+              <span>Provider:</span>
+              <strong>{hoveredExchange.cloudProvider.toUpperCase()}</strong>
+            </DetailRow>
+            <DetailRow>
+              <span>Location:</span>
+              <strong>{hoveredExchange.location.city}, {hoveredExchange.location.country}</strong>
+            </DetailRow>
+            <DetailRow>
+              <span>Coordinates:</span>
+              <strong>{hoveredExchange.location.latitude.toFixed(2)}°, {hoveredExchange.location.longitude.toFixed(2)}°</strong>
+            </DetailRow>
+          </DetailsContent>
+        </ServerDetailsPanel>
+      )}
+
       <LegendContainer>
         <Legend />
       </LegendContainer>
-
-      {showAnalytics && (
-        <MobileAnalyticsWrapper>
-          <AnalyticsPanel />
-        </MobileAnalyticsWrapper>
-      )}
 
       {loading && (
         <LoadingOverlay>
@@ -264,8 +314,8 @@ const fadeIn = keyframes`
 `;
 
 const slideIn = keyframes`
-  from { transform: translateX(100%); }
-  to { transform: translateX(0); }
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
 `;
 
 const spin = keyframes`
@@ -277,6 +327,12 @@ const pulse = keyframes`
   0% { opacity: 0.6; }
   50% { opacity: 1; }
   100% { opacity: 0.6; }
+`;
+
+const float = keyframes`
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-5px); }
+  100% { transform: translateY(0px); }
 `;
 
 // Styled Components
@@ -297,19 +353,20 @@ const TopBar = styled.div`
   justify-content: space-between;
   align-items: center;
   padding: 1rem 2rem;
-  background: rgba(15, 23, 42, 0.95);
-  backdrop-filter: blur(16px);
+  background: rgba(15, 23, 42, 0.98);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   z-index: 20;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
   box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 
   @media (max-width: 1024px) {
     padding: 1rem 1.5rem;
   }
 
   @media (max-width: 768px) {
-    padding: 1rem;
+    padding: 0.875rem 1rem;
   }
 `;
 
@@ -325,6 +382,11 @@ const AppTitle = styled.h1`
   color: white;
   letter-spacing: 0.5px;
   line-height: 1.2;
+  background: linear-gradient(90deg, #ffffff, #e0e0e0);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-fill-color: transparent;
 
   @media (max-width: 768px) {
     font-size: 1.3rem;
@@ -356,49 +418,30 @@ const DesktopControls = styled.div`
   }
 `;
 
-const NavDropdown = styled.div`
-  position: relative;
-`;
-
-const NavItem = styled.button<{ active?: boolean }>`
-  background: none;
+const NavItem = styled.button<{ $active?: boolean }>`
+  background: ${props => props.$active ? 'rgba(59, 130, 246, 0.15)' : 'transparent'};
   border: none;
-  color: ${props => props.active ? 'white' : 'rgba(255, 255, 255, 0.7)'};
-  font-size: 1rem;
+  color: ${props => props.$active ? 'white' : 'rgba(255, 255, 255, 0.8)'};
+  font-size: 0.95rem;
   font-weight: 500;
   cursor: pointer;
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.5rem 1rem;
-  border-radius: 8px;
-  transition: all 0.2s ease;
+  padding: 0.75rem 1.25rem;
+  border-radius: 10px;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: ${props => props.$active ? '0 4px 12px rgba(59, 130, 246, 0.2)' : 'none'};
 
   &:hover {
     background: rgba(255, 255, 255, 0.1);
     color: white;
+    transform: translateY(-1px);
   }
 
   svg {
-    transition: transform 0.2s ease;
+    transition: transform 0.3s ease;
   }
-`;
-
-const DropdownContent = styled.div`
-  position: absolute;
-  top: 100%;
-  right: 0;
-  margin-top: 0.5rem;
-  background: rgba(15, 23, 42, 0.97);
-  backdrop-filter: blur(16px);
-  border-radius: 12px;
-  padding: 1.5rem;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  z-index: 30;
-  width: 350px;
-  animation: ${fadeIn} 0.3s ease-out;
-  transform-origin: top right;
 `;
 
 const MobileMenuButton = styled.button`
@@ -409,66 +452,205 @@ const MobileMenuButton = styled.button`
   cursor: pointer;
   padding: 0.5rem;
   border-radius: 8px;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
 
   &:hover {
     background: rgba(255, 255, 255, 0.1);
   }
 
   @media (max-width: 768px) {
-    display: block;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 `;
 
-const MobileMenu = styled.div<{ open: boolean }>`
+const MobileMenu = styled.div<{ $open: boolean }>`
   display: none;
-  position: absolute;
+  position: fixed;
   top: 80px;
   right: 1rem;
-  background: rgba(15, 23, 42, 0.97);
-  backdrop-filter: blur(16px);
-  border-radius: 12px;
-  padding: 1rem;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+  background: rgba(15, 23, 42, 0.98);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: 14px;
+  padding: 1rem 0;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
   border: 1px solid rgba(255, 255, 255, 0.15);
   z-index: 20;
-  width: calc(100% - 2rem);
-  max-width: 300px;
-  animation: ${slideIn} 0.3s ease-out;
-  transform-origin: top right;
+  width: 280px;
   overflow: hidden;
-  transition: all 0.3s ease;
-  opacity: ${props => props.open ? 1 : 0};
-  pointer-events: ${props => props.open ? 'all' : 'none'};
-  transform: ${props => props.open ? 'translateX(0)' : 'translateX(100%)'};
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  opacity: ${props => props.$open ? 1 : 0};
+  pointer-events: ${props => props.$open ? 'all' : 'none'};
+  transform: ${props => props.$open ? 'translateX(0) scale(1)' : 'translateX(20px) scale(0.95)'};
 
   @media (max-width: 768px) {
     display: block;
   }
+
+  @media (max-width: 480px) {
+    width: calc(100% - 2rem);
+    right: 1rem;
+    left: 1rem;
+  }
 `;
 
-const MobileMenuItem = styled.button`
+const MobileMenuItem = styled.button<{ $active?: boolean }>`
   width: 100%;
-  background: none;
+  background: ${props => props.$active ? 'rgba(59, 130, 246, 0.15)' : 'transparent'};
   border: none;
-  color: white;
-  font-size: 1rem;
+  color: ${props => props.$active ? 'white' : 'rgba(255, 255, 255, 0.8)'};
+  font-size: 0.95rem;
   font-weight: 500;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.75rem 1rem;
-  border-radius: 8px;
-  transition: all 0.2s ease;
-  margin-bottom: 0.5rem;
+  padding: 0.875rem 1.5rem;
+  transition: all 0.3s ease;
 
   &:hover {
     background: rgba(255, 255, 255, 0.1);
+    color: white;
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
+`;
+
+const CenteredPanel = styled.div<{ $type: 'analytics' | 'filters' }>`
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(90vw, ${props => props.$type === 'analytics' ? '800px' : '500px'});
+  max-height: 80vh;
+  background: rgba(15, 23, 42, 0.98);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: 16px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  overflow: hidden;
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  animation: ${slideIn} 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+
+  @media (max-width: 768px) {
+    width: 95vw;
+    max-height: 70vh;
+  }
+`;
+
+const PanelHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.25rem 1.5rem;
+  background: rgba(30, 41, 59, 0.7);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+
+  h3 {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: white;
+  }
+`;
+
+const PanelContent = styled.div`
+  padding: 1.5rem;
+  overflow-y: auto;
+  flex-grow: 1;
+`;
+
+const ServerDetailsPanel = styled.div`
+  position: fixed;
+  bottom: 2rem;
+  left: 2rem;
+  background: rgba(15, 23, 42, 0.98);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  z-index: 20;
+  width: 300px;
+  animation: ${fadeIn} 0.3s ease-out;
+  overflow: hidden;
+
+  @media (max-width: 768px) {
+    left: 1rem;
+    bottom: 1rem;
+    width: calc(100% - 2rem);
+  }
+`;
+
+const DetailsHeader = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem 1.25rem;
+  background: rgba(30, 41, 59, 0.7);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+
+  h4 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: white;
+    flex-grow: 1;
+  }
+
+  svg {
+    color: ${PROVIDER_COLORS.aws};
+  }
+`;
+
+const DetailsContent = styled.div`
+  padding: 1.25rem;
+`;
+
+const DetailRow = styled.div`
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+  font-size: 0.9rem;
+
+  span {
+    color: rgba(255, 255, 255, 0.7);
+  }
+
+  strong {
+    color: white;
+    font-weight: 500;
+    text-align: right;
   }
 
   &:last-child {
     margin-bottom: 0;
+  }
+`;
+
+const CloseButton = styled.button`
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    transform: rotate(90deg);
   }
 `;
 
@@ -485,19 +667,6 @@ const LegendContainer = styled.div`
   }
 `;
 
-const MobileAnalyticsWrapper = styled.div`
-  position: absolute;
-  bottom: 6rem;
-  left: 1rem;
-  right: 1rem;
-  z-index: 10;
-  animation: ${fadeIn} 0.4s ease-out;
-
-  @media (min-width: 769px) {
-    display: none;
-  }
-`;
-
 const LoadingOverlay = styled.div`
   position: absolute;
   top: 0;
@@ -508,56 +677,62 @@ const LoadingOverlay = styled.div`
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  background: rgba(10, 14, 23, 0.95);
+  background: rgba(10, 14, 23, 0.98);
   z-index: 100;
-  backdrop-filter: blur(8px);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
 `;
 
 const SpinnerContainer = styled.div`
-  width: 4rem;
-  height: 4rem;
+  width: 5rem;
+  height: 5rem;
   display: flex;
   align-items: center;
   justify-content: center;
   margin-bottom: 1.5rem;
+  animation: ${float} 3s ease-in-out infinite;
 `;
 
 const Spinner = styled.div`
-  width: 3.5rem;
-  height: 3.5rem;
+  width: 4rem;
+  height: 4rem;
   border: 4px solid rgba(255, 255, 255, 0.1);
   border-top: 4px solid ${PROVIDER_COLORS.aws};
   border-radius: 50%;
   animation: ${spin} 1s linear infinite;
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
 `;
 
 const LoadingText = styled.p`
   color: white;
-  font-size: 1.25rem;
+  font-size: 1.4rem;
   font-weight: 500;
   margin: 0 0 0.5rem 0;
+  text-align: center;
+  max-width: 80%;
+  line-height: 1.4;
 `;
 
 const LoadingProgress = styled.p`
   color: rgba(255, 255, 255, 0.7);
-  font-size: 0.95rem;
+  font-size: 1rem;
   margin: 0;
   animation: ${pulse} 1.5s ease-in-out infinite;
 `;
 
 const ErrorOverlay = styled(LoadingOverlay)`
-  background: rgba(23, 14, 14, 0.95);
+  background: rgba(23, 14, 14, 0.98);
 `;
 
 const ErrorIcon = styled.div`
-  font-size: 3.5rem;
+  font-size: 4rem;
   margin-bottom: 1.5rem;
   animation: ${pulse} 1.5s ease-in-out infinite;
 `;
 
 const ErrorText = styled.p`
   color: #ff6b6b;
-  font-size: 1.25rem;
+  font-size: 1.3rem;
   max-width: 80%;
   text-align: center;
   margin-bottom: 2rem;
@@ -571,16 +746,16 @@ const ErrorText = styled.p`
 `;
 
 const RetryButton = styled.button`
-  padding: 0.875rem 1.75rem;
+  padding: 1rem 2rem;
   background: ${PROVIDER_COLORS.aws};
   color: white;
   border: none;
-  border-radius: 8px;
-  font-size: 1rem;
+  border-radius: 10px;
+  font-size: 1.1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 16px rgba(239, 68, 68, 0.3);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 20px rgba(239, 68, 68, 0.3);
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -588,7 +763,7 @@ const RetryButton = styled.button`
   &:hover {
     background: #dc2626;
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
+    box-shadow: 0 6px 24px rgba(239, 68, 68, 0.4);
   }
 
   &:active {
@@ -596,8 +771,8 @@ const RetryButton = styled.button`
   }
 
   @media (max-width: 480px) {
-    padding: 0.75rem 1.5rem;
-    font-size: 0.95rem;
+    padding: 0.875rem 1.75rem;
+    font-size: 1rem;
   }
 `;
 
